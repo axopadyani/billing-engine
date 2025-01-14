@@ -13,6 +13,7 @@ Billing Engine is a Go-based gRPC service that manages loan creation, retrieval,
 
 ## Prerequisites
 
+- Docker
 - Go 1.23.3
 
 ## Installation & Running
