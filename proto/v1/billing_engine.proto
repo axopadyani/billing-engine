@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package loan_service.v1;
+option go_package = "/proto/v1";
+
+import "google/protobuf/timestamp.proto";
+
+// BillingEngine provides services for managing loans and payments.
+service BillingEngine {
+  // CreateLoan creates a new loan for a user.
+  rpc CreateLoan(CreateLoanRequest) returns (Loan) {}
+
+  // GetCurrentLoan retrieves the current loan details for a user.
+  rpc GetCurrentLoan(GetCurrentLoanRequest) returns (LoanDetail) {}
+
+  // MakePayment processes a payment for a specific loan.
+  rpc MakePayment(MakePaymentRequest) returns (LoanDetail) {}
+}
+
+// Loan represents the details of a loan.
+message Loan {
+  // id is the unique identifier for the loan.
+  string id = 1;
+
+  // user_id is the identifier of the user who took the loan.
+  string user_id = 2;
+
+  // amount is the total amount of the loan.
+  string amount = 3;
+
+  // payment_duration_weeks is the duration for the loan should be paid in weeks.
+  int32 payment_duration_weeks = 4;
+
+  // payment_amount is the amount to be paid for the loan.
+  string payment_amount = 5;
+
+  // status represents the current status of the loan.
+  LoanStatus status = 6;
+
+  // created_at is the timestamp when the loan was created.
+  google.protobuf.Timestamp created_at = 7;
+
+  // updated_at is the timestamp when the loan was last updated.
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+// LoanStatus represents the current status of a loan.
+enum LoanStatus {
+  // ONGOING indicates that the loan is still active.
+  ONGOING = 0;
+
+  // PAID indicates that the loan has been fully repaid.
+  PAID = 1;
+}
+
+// LoanDetail represents detailed information about a loan, including its current status and payment details.
+message LoanDetail {
+  // loan is the basic loan information.
+  Loan loan = 1;
+
+  // outstanding_amount is the remaining amount to be paid on the loan.
+  string outstanding_amount = 2;
+
+  // current_bill_amount is the amount due for the current billing cycle.
+  string current_bill_amount = 3;
+
+  // is_delinquent indicates whether the loan is delinquent or not.
+  bool is_delinquent = 4;
+}
+
+// CreateLoanRequest represents the request structure for creating a new loan.
+message CreateLoanRequest {
+  // user_id is the unique identifier of the user requesting the loan.
+  string user_id = 1;
+
+  // amount is the total loan amount requested by the user.
+  // It should be a string representation of a decimal number.
+  string amount = 2;
+
+  // payment_duration_weeks specifies the loan repayment period in weeks.
+  // It determines how long the user has to repay the loan.
+  int32 payment_duration_weeks = 3;
+}
+
+// GetCurrentLoanRequest represents the request structure for retrieving the current loan of a user.
+message GetCurrentLoanRequest {
+  // user_id is the unique identifier of the user whose current loan is being requested.
+  string user_id = 1;
+}
+
+// MakePaymentRequest represents the request structure for making a payment on a loan.
+message MakePaymentRequest {
+  // loan_id is the unique identifier of the loan on which the payment is being made.
+  string loan_id = 1;
+
+  // payment_amount is the amount being paid towards the loan.
+  // It should be a string representation of a decimal number.
+  string payment_amount = 2;
+}

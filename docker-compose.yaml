@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_container
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./migration/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'echo "SELECT 1" | psql -h localhost -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 50
+
+  migrate_billing_engine:
+    image: migrate/migrate:v4.15.1
+    volumes:
+      - ./migration:/migration
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: [ "sh", "-c" ]
+    command: >
+      "migrate -path /migration/billing_engine -verbose -database postgres://postgres:postgres@postgres:5432/billing_engine?sslmode=disable up"
